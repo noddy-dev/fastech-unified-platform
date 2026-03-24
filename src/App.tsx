@@ -34,6 +34,7 @@ import NetworkPage from './pages/tenant/NetworkPage';
 import ReportsPage from './pages/tenant/ReportsPage';
 import UsersPage from './pages/tenant/UsersPage';
 import TenantPatchManagementPage from './pages/tenant/PatchManagementPage';
+import AssetManagementPage from './pages/tenant/AssetManagementPage';
 
 const App = () => (
   <BrowserRouter>
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/tenant/devices" element={<DevicesPage />} />
             <Route path="/tenant/devices/:deviceId" element={<DeviceDetailPage />} />
             <Route path="/tenant/patches" element={<TenantPatchManagementPage />} />
+            <Route path="/tenant/assets" element={<AssetManagementPage />} />
             <Route path="/tenant/compliance" element={<CompliancePage />} />
             <Route path="/tenant/alerts" element={<AlertsPage />} />
             <Route path="/tenant/ai-insights" element={<AIInsightsPage />} />
