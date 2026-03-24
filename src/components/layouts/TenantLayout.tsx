@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   LayoutDashboard, Server, Shield, Bell, Zap, Terminal, Network,
-  FileText, Users, LogOut, User, ChevronDown, Menu, Package,
+  FileText, Users, LogOut, User, ChevronDown, Menu, Package, Boxes,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,6 +21,7 @@ const navigation = [
   { name: 'Dashboard', href: '/tenant/dashboard', icon: LayoutDashboard },
   { name: 'Devices', href: '/tenant/devices', icon: Server },
   { name: 'Patch Management', href: '/tenant/patches', icon: Package },
+  { name: 'Asset Management', href: '/tenant/assets', icon: Boxes },
   { name: 'Compliance', href: '/tenant/compliance', icon: Shield },
   { name: 'Alerts', href: '/tenant/alerts', icon: Bell },
   { name: 'AI Insights', href: '/tenant/ai-insights', icon: Zap },
