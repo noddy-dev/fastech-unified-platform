@@ -254,27 +254,57 @@ export type Database = {
       devices: {
         Row: {
           compliance_score: number | null
+          cpu_model: string | null
           created_at: string | null
+          department: string | null
+          disk_capacity_gb: number | null
+          hardware_id: string | null
           id: string
+          ip_address: string | null
+          last_seen: string | null
           name: string | null
+          os: string | null
+          os_version: string | null
+          ram_gb: number | null
+          status: string | null
           tenant_id: string | null
           type: string | null
           updated_at: string | null
         }
         Insert: {
           compliance_score?: number | null
+          cpu_model?: string | null
           created_at?: string | null
+          department?: string | null
+          disk_capacity_gb?: number | null
+          hardware_id?: string | null
           id?: string
+          ip_address?: string | null
+          last_seen?: string | null
           name?: string | null
+          os?: string | null
+          os_version?: string | null
+          ram_gb?: number | null
+          status?: string | null
           tenant_id?: string | null
           type?: string | null
           updated_at?: string | null
         }
         Update: {
           compliance_score?: number | null
+          cpu_model?: string | null
           created_at?: string | null
+          department?: string | null
+          disk_capacity_gb?: number | null
+          hardware_id?: string | null
           id?: string
+          ip_address?: string | null
+          last_seen?: string | null
           name?: string | null
+          os?: string | null
+          os_version?: string | null
+          ram_gb?: number | null
+          status?: string | null
           tenant_id?: string | null
           type?: string | null
           updated_at?: string | null
@@ -285,6 +315,41 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      installed_software: {
+        Row: {
+          created_at: string | null
+          device_id: string | null
+          id: string
+          installed_at: string | null
+          software_name: string
+          version: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          device_id?: string | null
+          id?: string
+          installed_at?: string | null
+          software_name: string
+          version?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          device_id?: string | null
+          id?: string
+          installed_at?: string | null
+          software_name?: string
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "installed_software_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
             referencedColumns: ["id"]
           },
         ]
@@ -409,27 +474,39 @@ export type Database = {
       network_devices: {
         Row: {
           created_at: string | null
+          hostname: string | null
           id: string
           ip_address: string | null
+          last_polled: string | null
+          metrics: Json | null
           name: string | null
+          snmp_status: string | null
           tenant_id: string | null
           type: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          hostname?: string | null
           id?: string
           ip_address?: string | null
+          last_polled?: string | null
+          metrics?: Json | null
           name?: string | null
+          snmp_status?: string | null
           tenant_id?: string | null
           type?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          hostname?: string | null
           id?: string
           ip_address?: string | null
+          last_polled?: string | null
+          metrics?: Json | null
           name?: string | null
+          snmp_status?: string | null
           tenant_id?: string | null
           type?: string | null
           updated_at?: string | null
@@ -451,7 +528,10 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          msp_id: string | null
+          organization_name: string | null
           password_hash: string
+          phone: string | null
           role: string | null
           tenant_id: string | null
           updated_at: string | null
@@ -462,7 +542,10 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          msp_id?: string | null
+          organization_name?: string | null
           password_hash: string
+          phone?: string | null
           role?: string | null
           tenant_id?: string | null
           updated_at?: string | null
@@ -473,7 +556,10 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          msp_id?: string | null
+          organization_name?: string | null
           password_hash?: string
+          phone?: string | null
           role?: string | null
           tenant_id?: string | null
           updated_at?: string | null
@@ -612,7 +698,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_msp_id: { Args: { _user_id: string }; Returns: string }
+      get_user_role: { Args: { _user_id: string }; Returns: string }
+      get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never

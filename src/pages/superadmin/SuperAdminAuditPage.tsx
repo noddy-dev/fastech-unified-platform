@@ -33,8 +33,7 @@ export default function SuperAdminAuditPage() {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium">{log.action}</p>
                       <p className="text-xs text-muted-foreground">
-                        {log.resource_type && `${log.resource_type} • `}
-                        {new Date(log.created_at).toLocaleString()}
+                        {log.created_at ? new Date(log.created_at).toLocaleString() : ''}
                       </p>
                     </div>
                   </div>

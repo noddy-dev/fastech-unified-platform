@@ -39,10 +39,10 @@ export default function SuperAdminUsersPage() {
                 {users.map((u) => (
                   <div key={u.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
-                      <p className="font-medium">{u.email || u.username || 'Unknown'}</p>
+                      <p className="font-medium">{u.email || 'Unknown'}</p>
                       <p className="text-xs text-muted-foreground">{u.organization_name || 'No org'}</p>
                     </div>
-                    <Badge className={getRoleBadge(u.role)}>{u.role.replace('_', ' ')}</Badge>
+                    <Badge className={getRoleBadge(u.role || 'client')}>{(u.role || 'client').replace('_', ' ')}</Badge>
                   </div>
                 ))}
               </div>

@@ -22,7 +22,7 @@ export default function DevicesPage() {
   useEffect(() => { if (profile?.tenant_id) getDevicesByTenant(profile.tenant_id).then(setDevices).catch(console.error).finally(() => setLoading(false)); else setLoading(false); }, [profile]);
   useEffect(() => {
     let f = [...devices];
-    if (search) f = f.filter(d => d.device_name.toLowerCase().includes(search.toLowerCase()) || d.ip_address?.includes(search));
+    if (search) f = f.filter(d => (d.name || '').toLowerCase().includes(search.toLowerCase()) || d.ip_address?.includes(search));
     if (osFilter !== 'all') f = f.filter(d => d.os === osFilter);
     if (statusFilter !== 'all') f = f.filter(d => d.status === statusFilter);
     setFiltered(f);
@@ -44,7 +44,7 @@ export default function DevicesPage() {
         : filtered.length === 0 ? <Card><CardContent className="py-12 text-center"><Server className="w-12 h-12 mx-auto mb-4 text-muted-foreground" /><p className="text-muted-foreground">{devices.length === 0 ? 'No devices registered' : 'No matches'}</p></CardContent></Card>
         : <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{filtered.map(d => (
           <Link key={d.id} to={`/tenant/devices/${d.id}`}><Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader><div className="flex items-start justify-between"><div className="space-y-1"><div className="flex items-center gap-2"><Monitor className="w-4 h-4 text-primary" /><CardTitle className="text-lg">{d.device_name}</CardTitle></div><p className="text-sm text-muted-foreground capitalize">{d.os} {d.os_version}</p></div><Badge className={getStatusColor(d.status)}>{d.status}</Badge></div></CardHeader>
+            <CardHeader><div className="flex items-start justify-between"><div className="space-y-1"><div className="flex items-center gap-2"><Monitor className="w-4 h-4 text-primary" /><CardTitle className="text-lg">{d.name || 'Unknown'}</CardTitle></div><p className="text-sm text-muted-foreground capitalize">{d.os || d.type || ''} {d.os_version || ''}</p></div><Badge className={getStatusColor(d.status || 'unknown')}>{d.status || 'unknown'}</Badge></div></CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2"><Cpu className="w-4 h-4 text-muted-foreground" />CPU:</div><span className="text-right truncate">{d.cpu_model || 'N/A'}</span>
