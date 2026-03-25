@@ -68,7 +68,7 @@ export async function getTenantById(tenantId: string) {
 }
 
 export async function createTenant(tenant: Partial<Tenant>) {
-  const { data, error } = await supabase.from('tenants').insert(tenant).select().maybeSingle();
+  const { data, error } = await supabase.from('tenants').insert(tenant as any).select().maybeSingle();
   if (error) throw error;
   return data as Tenant;
 }
@@ -98,7 +98,7 @@ export async function getAllMSPs() {
 }
 
 export async function createMSP(msp: Partial<MSP>) {
-  const { data, error } = await supabase.from('msps').insert(msp).select().maybeSingle();
+  const { data, error } = await supabase.from('msps').insert(msp as any).select().maybeSingle();
   if (error) throw error;
   return data as MSP;
 }
@@ -253,7 +253,7 @@ export async function getRemoteActionsByDevice(deviceId: string) {
 }
 
 export async function createRemoteAction(action: Partial<RemoteAction>) {
-  const { data, error } = await supabase.from('remote_actions').insert(action).select().maybeSingle();
+  const { data, error } = await supabase.from('remote_actions').insert(action as any).select().maybeSingle();
   if (error) throw error;
   return data as RemoteAction;
 }
