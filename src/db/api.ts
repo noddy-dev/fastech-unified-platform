@@ -1,6 +1,6 @@
-import { supabase } from './supabase';
+import { supabase } from '@/integrations/supabase/client';
 import type {
-  Profile, Tenant, Device, DeviceMetrics, Alert, ComplianceRule,
+  Profile, Tenant, Device, Alert, ComplianceRule,
   RemoteAction, MSPSupportSession, TenantWithStats, DeviceWithMetrics,
   MaintenanceSuggestion, NetworkDevice, SecurityStatus, MSP,
 } from '@/types/types';
@@ -21,20 +21,20 @@ export async function updateProfile(userId: string, updates: Partial<Profile>) {
 export async function getTenantUsers(tenantId: string) {
   const { data, error } = await supabase.from('profiles').select('*').eq('tenant_id', tenantId).order('created_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as Profile[];
 }
 
 export async function getAllUsers() {
   const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as Profile[];
 }
 
 // ============ Tenants ============
 export async function getAllTenants() {
   const { data, error } = await supabase.from('tenants').select('*').order('created_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as Tenant[];
 }
 
 export async function getTenantsWithStats(): Promise<TenantWithStats[]> {
@@ -87,14 +87,14 @@ export async function deleteTenant(tenantId: string) {
 export async function getTenantAdmins(tenantId: string) {
   const { data, error } = await supabase.from('profiles').select('*').eq('tenant_id', tenantId).eq('role', 'tenant_admin');
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as Profile[];
 }
 
 // ============ MSPs ============
 export async function getAllMSPs() {
   const { data, error } = await supabase.from('msps').select('*').order('created_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as MSP[];
 }
 
 export async function createMSP(msp: Partial<MSP>) {
@@ -136,20 +136,20 @@ export async function getActiveSupportSession(tenantId: string) {
 export async function getSupportSessionsByTenant(tenantId: string) {
   const { data, error } = await supabase.from('msp_support_sessions').select('*').eq('tenant_id', tenantId).order('activated_at', { ascending: false }).limit(20);
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as MSPSupportSession[];
 }
 
 // ============ Devices ============
 export async function getDevicesByTenant(tenantId: string) {
   const { data, error } = await supabase.from('devices').select('*').eq('tenant_id', tenantId).order('created_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as Device[];
 }
 
 export async function getAllDevices() {
   const { data, error } = await supabase.from('devices').select('*').order('created_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as Device[];
 }
 
 export async function getDeviceById(deviceId: string): Promise<DeviceWithMetrics | null> {
@@ -161,7 +161,12 @@ export async function getDeviceById(deviceId: string): Promise<DeviceWithMetrics
   const { data: security } = await supabase.from('security_status').select('*').eq('device_id', deviceId).order('checked_at', { ascending: false }).limit(1).maybeSingle();
   const { data: software } = await supabase.from('installed_software').select('*').eq('device_id', deviceId).order('software_name', { ascending: true });
 
-  return { ...data, latest_metrics: metrics || undefined, security_status: security || undefined, installed_software: Array.isArray(software) ? software : [] } as DeviceWithMetrics;
+  return {
+    ...data,
+    latest_metrics: metrics || undefined,
+    security_status: security || undefined,
+    installed_software: Array.isArray(software) ? software : [],
+  } as DeviceWithMetrics;
 }
 
 export async function createDevice(device: Partial<Device>) {
@@ -180,7 +185,7 @@ export async function updateDevice(deviceId: string, updates: Partial<Device>) {
 export async function getDeviceMetrics(deviceId: string, limit = 100) {
   const { data, error } = await supabase.from('device_metrics').select('*').eq('device_id', deviceId).order('recorded_at', { ascending: false }).limit(limit);
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as import('@/types/types').DeviceMetrics[];
 }
 
 // ============ Alerts ============
@@ -189,19 +194,19 @@ export async function getAlertsByTenant(tenantId: string, status?: string) {
   if (status) query = query.eq('status', status);
   const { data, error } = await query.order('created_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as (Alert & { device?: Device })[];
 }
 
 export async function getAllAlerts() {
   const { data, error } = await supabase.from('alerts').select('*, device:devices(*)').order('created_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as (Alert & { device?: Device })[];
 }
 
 export async function getAlertsByDevice(deviceId: string) {
   const { data, error } = await supabase.from('alerts').select('*').eq('device_id', deviceId).order('created_at', { ascending: false }).limit(50);
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as Alert[];
 }
 
 export async function updateAlert(alertId: string, updates: Partial<Alert>) {
@@ -214,7 +219,7 @@ export async function updateAlert(alertId: string, updates: Partial<Alert>) {
 export async function getComplianceRulesByTenant(tenantId: string) {
   const { data, error } = await supabase.from('compliance_rules').select('*').eq('tenant_id', tenantId).order('created_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as ComplianceRule[];
 }
 
 export async function createComplianceRule(rule: Partial<ComplianceRule>) {
@@ -237,14 +242,14 @@ export async function deleteComplianceRule(ruleId: string) {
 export async function getComplianceResultsByDevice(deviceId: string) {
   const { data, error } = await supabase.from('compliance_results').select('*, rule:compliance_rules(*)').eq('device_id', deviceId).order('checked_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as (import('@/types/types').ComplianceResult & { rule?: ComplianceRule })[];
 }
 
 // ============ Remote Actions ============
 export async function getRemoteActionsByDevice(deviceId: string) {
   const { data, error } = await supabase.from('remote_actions').select('*').eq('device_id', deviceId).order('created_at', { ascending: false }).limit(50);
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as RemoteAction[];
 }
 
 export async function createRemoteAction(action: Partial<RemoteAction>) {
@@ -256,14 +261,14 @@ export async function createRemoteAction(action: Partial<RemoteAction>) {
 export async function getRemoteActionsByTenant(tenantId: string) {
   const { data, error } = await supabase.from('remote_actions').select('*').eq('tenant_id', tenantId).order('created_at', { ascending: false }).limit(100);
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as RemoteAction[];
 }
 
 // ============ Maintenance Suggestions ============
 export async function getMaintenanceSuggestionsByTenant(tenantId: string) {
   const { data, error } = await supabase.from('maintenance_suggestions').select('*, device:devices!inner(*)').eq('device.tenant_id', tenantId).order('created_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as (MaintenanceSuggestion & { device?: Device })[];
 }
 
 export async function updateMaintenanceSuggestion(suggestionId: string, updates: Partial<MaintenanceSuggestion>) {
@@ -276,7 +281,7 @@ export async function updateMaintenanceSuggestion(suggestionId: string, updates:
 export async function getNetworkDevicesByTenant(tenantId: string) {
   const { data, error } = await supabase.from('network_devices').select('*').eq('tenant_id', tenantId).order('created_at', { ascending: false });
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as NetworkDevice[];
 }
 
 // ============ Security Status ============
@@ -320,9 +325,9 @@ export async function getTenantDashboardStats(tenantId: string) {
     getComplianceRulesByTenant(tenantId),
   ]);
 
-  const compliant = devices.filter(d => d.compliance_score >= 80);
+  const compliant = devices.filter(d => (d.compliance_score || 0) >= 80);
   const avgScore = devices.length > 0
-    ? Math.round(devices.reduce((s, d) => s + d.compliance_score, 0) / devices.length)
+    ? Math.round(devices.reduce((s, d) => s + (d.compliance_score || 0), 0) / devices.length)
     : 0;
 
   return {
@@ -339,11 +344,11 @@ export async function getTenantDashboardStats(tenantId: string) {
 export async function getAuditLogsByTenant(tenantId: string, limit = 100) {
   const { data, error } = await supabase.from('audit_logs').select('*').eq('tenant_id', tenantId).order('created_at', { ascending: false }).limit(limit);
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as import('@/types/types').AuditLog[];
 }
 
 export async function getAllAuditLogs(limit = 100) {
   const { data, error } = await supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(limit);
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return (data ?? []) as import('@/types/types').AuditLog[];
 }

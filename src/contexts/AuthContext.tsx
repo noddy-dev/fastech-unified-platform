@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { supabase } from '@/db/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import type { Profile } from '@/types/types';
 import { toast } from 'sonner';
@@ -15,7 +15,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     console.error('Failed to fetch user profile:', error);
     return null;
   }
-  return data;
+  return data as Profile | null;
 }
 
 interface AuthContextType {
@@ -51,6 +51,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // Set up auth state listener FIRST, then check session
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        // Use setTimeout to avoid potential deadlock with Supabase client
+        setTimeout(() => {
+          getProfile(session.user.id).then(setProfile);
+        }, 0);
+      } else {
+        setProfile(null);
+      }
+    });
+
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
         setUser(session?.user ?? null);
@@ -62,15 +75,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         toast.error(`Failed to fetch session: ${error.message}`);
       })
       .finally(() => setLoading(false));
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        getProfile(session.user.id).then(setProfile);
-      } else {
-        setProfile(null);
-      }
-    });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -93,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     accountType: 'tenant' | 'msp';
   }) => {
     try {
+      const role = data.accountType === 'msp' ? 'msp_admin' : 'tenant_admin';
       const { error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -100,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           data: {
             organization_name: data.organizationName,
             phone: data.phone,
-            account_type: data.accountType,
+            account_type: role,
           },
         },
       });

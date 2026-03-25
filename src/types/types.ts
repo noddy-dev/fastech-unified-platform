@@ -1,4 +1,4 @@
-export type UserRole = 'super_admin' | 'msp_admin' | 'tenant_admin' | 'tenant_user';
+export type UserRole = 'super_admin' | 'msp_admin' | 'tenant_admin' | 'tenant_user' | 'client';
 export type TenantStatus = 'active' | 'suspended' | 'inactive';
 export type DeviceOS = 'windows' | 'linux' | 'macos';
 export type DeviceStatus = 'online' | 'offline' | 'unknown';
@@ -10,198 +10,213 @@ export type ScriptType = 'powershell' | 'bash' | 'python';
 export type PatchSchedule = 'daily' | 'weekly' | 'monthly';
 export type PatchStatus = 'pending' | 'approved' | 'postponed' | 'excluded' | 'installed' | 'failed';
 
+// Matches DB: profiles table
 export interface Profile {
   id: string;
-  email: string | null;
-  username: string | null;
-  role: UserRole;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  password_hash: string;
+  role: string | null;
   tenant_id: string | null;
   msp_id: string | null;
-  organization_name: string | null;
   phone: string | null;
-  created_at: string;
-  updated_at: string;
+  organization_name: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
+// Matches DB: tenants table
 export interface Tenant {
   id: string;
   name: string;
-  status: TenantStatus;
-  subscription_tier: string;
-  monthly_fee_per_admin: number;
-  billing_status: string;
-  registration_token: string;
+  status: string | null;
+  subscription_tier: string | null;
+  monthly_fee_per_admin: number | null;
+  billing_status: string | null;
+  registration_token: string | null;
   msp_id: string | null;
-  logo_url: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
+// Matches DB: msps table
 export interface MSP {
   id: string;
   name: string;
-  contact_email: string;
-  phone: string | null;
-  status: string;
-  created_at: string;
-  updated_at: string;
+  contact_email: string | null;
+  status: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
+// Matches DB: msp_support_sessions table
 export interface MSPSupportSession {
   id: string;
-  tenant_id: string;
-  msp_user_id: string;
-  activated_at: string;
+  tenant_id: string | null;
+  msp_user_id: string | null;
+  activated_at: string | null;
   deactivated_at: string | null;
-  duration_minutes: number;
-  is_active: boolean;
-  created_at: string;
+  duration_minutes: number | null;
+  is_active: boolean | null;
 }
 
+// Matches DB: devices table (with new columns)
 export interface Device {
   id: string;
-  tenant_id: string;
-  device_name: string;
-  hardware_id: string;
-  os: DeviceOS;
+  tenant_id: string | null;
+  name: string | null;
+  type: string | null;
+  compliance_score: number | null;
+  os: string | null;
   os_version: string | null;
   ip_address: string | null;
+  status: string | null;
+  last_seen: string | null;
+  hardware_id: string | null;
   cpu_model: string | null;
   ram_gb: number | null;
   disk_capacity_gb: number | null;
-  disk_usage_percent: number | null;
-  status: DeviceStatus;
-  compliance_score: number;
-  last_seen: string | null;
   department: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
+// Matches DB: device_metrics table
 export interface DeviceMetrics {
   id: string;
-  device_id: string;
-  cpu_usage_percent: number | null;
-  memory_usage_percent: number | null;
-  disk_usage_percent: number | null;
-  network_throughput_mbps: number | null;
-  recorded_at: string;
+  device_id: string | null;
+  cpu_usage: number | null;
+  memory_usage: number | null;
+  disk_usage: number | null;
+  recorded_at: string | null;
 }
 
+// Matches DB: installed_software table
 export interface InstalledSoftware {
   id: string;
-  device_id: string;
+  device_id: string | null;
   software_name: string;
   version: string | null;
   installed_at: string | null;
-  created_at: string;
+  created_at: string | null;
 }
 
+// Matches DB: compliance_rules table
 export interface ComplianceRule {
   id: string;
-  tenant_id: string;
-  rule_name: string;
-  rule_type: string;
-  rule_config: Record<string, unknown>;
-  is_enabled: boolean;
-  applies_to_all: boolean;
-  department: string | null;
-  created_at: string;
-  updated_at: string;
+  tenant_id: string | null;
+  name: string | null;
+  description: string | null;
+  is_enabled: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
+// Matches DB: compliance_results table
 export interface ComplianceResult {
   id: string;
-  device_id: string;
-  rule_id: string;
-  passed: boolean;
-  checked_at: string;
-  details: string | null;
+  device_id: string | null;
+  rule_id: string | null;
+  passed: boolean | null;
+  checked_at: string | null;
 }
 
+// Matches DB: alerts table
 export interface Alert {
   id: string;
-  tenant_id: string;
+  tenant_id: string | null;
   device_id: string | null;
-  alert_type: string;
-  severity: AlertSeverity;
-  status: AlertStatus;
-  title: string;
+  alert_type: string | null;
+  severity: string | null;
+  status: string | null;
+  title: string | null;
   description: string | null;
   suggested_action: string | null;
-  ai_generated: boolean;
+  ai_generated: boolean | null;
   acknowledged_by: string | null;
   acknowledged_at: string | null;
   resolved_by: string | null;
   resolved_at: string | null;
-  created_at: string;
+  created_at: string | null;
 }
 
+// Matches DB: maintenance_suggestions table
 export interface MaintenanceSuggestion {
   id: string;
-  device_id: string;
-  issue_summary: string;
-  recommended_action: string | null;
-  confidence_level: number | null;
-  status: string;
-  actioned_by: string | null;
-  actioned_at: string | null;
-  created_at: string;
+  device_id: string | null;
+  tenant_id: string | null;
+  description: string | null;
+  status: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
+// Matches DB: remote_actions table
 export interface RemoteAction {
   id: string;
-  tenant_id: string;
-  device_id: string;
-  action_type: ActionType;
-  script_type: ScriptType | null;
-  script_content: string | null;
-  initiated_by: string;
-  status: ActionStatus;
-  output: string | null;
-  exit_code: number | null;
+  tenant_id: string | null;
+  device_id: string | null;
+  action_name: string | null;
+  parameters: Record<string, unknown> | null;
+  status: string | null;
   executed_at: string | null;
-  created_at: string;
+  created_at: string | null;
 }
 
+// Matches DB: network_devices table (with new columns)
 export interface NetworkDevice {
   id: string;
-  tenant_id: string;
+  tenant_id: string | null;
+  name: string | null;
+  type: string | null;
+  ip_address: string | null;
   hostname: string | null;
-  ip_address: string;
-  device_type: string | null;
   snmp_status: string | null;
   last_polled: string | null;
   metrics: Record<string, unknown> | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
+// Matches DB: security_status table
 export interface SecurityStatus {
   id: string;
-  device_id: string;
-  firewall_enabled: boolean | null;
-  antivirus_installed: boolean | null;
-  antivirus_active: boolean | null;
-  antivirus_up_to_date: boolean | null;
-  open_ports: Record<string, unknown> | null;
-  ad_user: string | null;
-  ad_sync_status: string | null;
-  checked_at: string;
+  device_id: string | null;
+  status_summary: string | null;
+  threats_detected: Record<string, unknown> | null;
+  checked_at: string | null;
 }
 
+// Matches DB: audit_logs table
 export interface AuditLog {
   id: string;
   tenant_id: string | null;
   user_id: string | null;
-  action: string;
-  resource_type: string | null;
-  resource_id: string | null;
+  action: string | null;
   details: Record<string, unknown> | null;
-  ip_address: string | null;
-  created_at: string;
+  created_at: string | null;
 }
 
+// Extended types for UI
+export interface DeviceWithMetrics extends Device {
+  latest_metrics?: DeviceMetrics;
+  security_status?: SecurityStatus;
+  installed_software?: InstalledSoftware[];
+}
+
+export interface AlertWithDevice extends Alert {
+  device?: Device;
+}
+
+export interface TenantWithStats extends Tenant {
+  device_count?: number;
+  admin_count?: number;
+  avg_compliance_score?: number;
+  active_alerts?: number;
+}
+
+// Patch types (future tables)
 export interface PatchProfile {
   id: string;
   tenant_id: string;
@@ -229,22 +244,4 @@ export interface PatchEntry {
   scheduled_at: string | null;
   installed_at: string | null;
   created_at: string;
-}
-
-// Extended types
-export interface DeviceWithMetrics extends Device {
-  latest_metrics?: DeviceMetrics;
-  security_status?: SecurityStatus;
-  installed_software?: InstalledSoftware[];
-}
-
-export interface AlertWithDevice extends Alert {
-  device?: Device;
-}
-
-export interface TenantWithStats extends Tenant {
-  device_count?: number;
-  admin_count?: number;
-  avg_compliance_score?: number;
-  active_alerts?: number;
 }
