@@ -124,7 +124,7 @@ export function SuperAdminLayout({ children }: SuperAdminLayoutProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost">
                   <User className="w-4 h-4 mr-2" />
-                  <span className="hidden md:inline">{profile?.username || profile?.email || 'Super Admin'}</span>
+                  <span className="hidden md:inline">{profile?.email || 'Super Admin'}</span>
                   <ChevronDown className="w-4 h-4 ml-2" />
                 </Button>
               </DropdownMenuTrigger>

@@ -70,7 +70,7 @@ export default function SuperAdminMSPsPage() {
                 </CardHeader>
                 <CardContent className="text-sm space-y-1">
                   <p className="text-muted-foreground">{m.contact_email}</p>
-                  {m.phone && <p className="text-muted-foreground">{m.phone}</p>}
+                  
                   <p className="text-xs text-muted-foreground">Created: {new Date(m.created_at).toLocaleDateString()}</p>
                 </CardContent>
               </Card>

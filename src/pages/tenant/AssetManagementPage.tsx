@@ -52,7 +52,7 @@ function generateMockCVEs(devices: Device[]): CVEEntry[] {
   ];
   devices.slice(0, 6).forEach((d, i) => {
     if (i < samples.length) {
-      cves.push({ id: `cve-${i}`, ...samples[i], device_name: d.device_name, device_id: d.id, published_date: '2026-03-10', patched: i % 3 === 0 });
+      cves.push({ id: `cve-${i}`, ...samples[i], device_name: d.name || 'Unknown', device_id: d.id, published_date: '2026-03-10', patched: i % 3 === 0 });
     }
   });
   return cves;
@@ -61,8 +61,8 @@ function generateMockCVEs(devices: Device[]): CVEEntry[] {
 function generateEOLAssets(devices: Device[]): EOLAsset[] {
   return devices.map((d, i) => ({
     device_id: d.id,
-    device_name: d.device_name,
-    os: d.os,
+    device_name: d.name || 'Unknown',
+    os: d.os || d.type || 'unknown',
     os_version: d.os_version,
     eol_date: i % 4 === 0 ? '2025-10-14' : i % 4 === 1 ? '2026-06-30' : '2029-01-01',
     status: i % 4 === 0 ? 'eol' as const : i % 4 === 1 ? 'approaching_eol' as const : 'supported' as const,
@@ -226,18 +226,18 @@ export default function AssetManagementPage() {
                           <TableCell className="font-medium">
                             <div className="flex items-center gap-2">
                               <Monitor className="w-4 h-4 text-primary shrink-0" />
-                              {d.device_name}
+                              {d.name || 'Unknown'}
                             </div>
                           </TableCell>
-                          <TableCell className="capitalize">{d.os} {d.os_version || ''}</TableCell>
+                          <TableCell className="capitalize">{d.os || d.type || ''} {d.os_version || ''}</TableCell>
                           <TableCell className="font-mono text-sm">{d.ip_address || '—'}</TableCell>
                           <TableCell>
                             <div className="text-sm">{d.cpu_model || 'N/A'}</div>
                             <div className="text-xs text-muted-foreground">{d.ram_gb ? `${d.ram_gb} GB RAM` : '—'}</div>
                           </TableCell>
                           <TableCell>
-                            <Badge className={d.status === 'online' ? 'bg-success text-success-foreground' : d.status === 'offline' ? 'bg-muted text-muted-foreground' : 'bg-warning text-warning-foreground'}>
-                              {d.status}
+                            <Badge className={(d.status || 'unknown') === 'online' ? 'bg-success text-success-foreground' : (d.status || 'unknown') === 'offline' ? 'bg-muted text-muted-foreground' : 'bg-warning text-warning-foreground'}>
+                              {d.status || 'unknown'}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -292,7 +292,7 @@ export default function AssetManagementPage() {
                             </div>
                           </TableCell>
                           <TableCell className="font-mono text-sm">{nd.ip_address}</TableCell>
-                          <TableCell className="capitalize">{nd.device_type || '—'}</TableCell>
+                          <TableCell className="capitalize">{nd.type || '—'}</TableCell>
                           <TableCell>
                             <Badge className={nd.snmp_status === 'active' ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'}>
                               {nd.snmp_status || 'unknown'}
