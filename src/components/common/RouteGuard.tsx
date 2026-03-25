@@ -44,6 +44,10 @@ export function RouteGuard({ children }: RouteGuardProps) {
           break;
         case 'tenant_admin':
         case 'tenant_user':
+        case 'client':
+          navigate('/tenant/dashboard', { replace: true });
+          break;
+        default:
           navigate('/tenant/dashboard', { replace: true });
           break;
       }
