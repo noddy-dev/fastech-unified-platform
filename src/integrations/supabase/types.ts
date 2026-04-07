@@ -698,6 +698,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_profile_sensitive_fields: {
+        Args: { _user_id: string }
+        Returns: {
+          msp_id: string
+          password_hash: string
+          role: string
+          tenant_id: string
+        }[]
+      }
       get_user_msp_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: { Args: { _user_id: string }; Returns: string }
       get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
