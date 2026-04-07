@@ -8,6 +8,14 @@ interface RouteGuardProps {
 
 const PUBLIC_ROUTES = ['/login', '/signup', '/403', '/404'];
 
+const ROLE_ROUTE_MAP: Record<string, string[]> = {
+  super_admin: ['/superadmin/', '/msp/', '/tenant/'],
+  msp_admin: ['/msp/', '/tenant/'],
+  tenant_admin: ['/tenant/'],
+  tenant_user: ['/tenant/'],
+  client: ['/tenant/'],
+};
+
 function matchPublicRoute(path: string, patterns: string[]) {
   return patterns.some(pattern => {
     if (pattern.includes('*')) {
@@ -16,6 +24,13 @@ function matchPublicRoute(path: string, patterns: string[]) {
     }
     return path === pattern;
   });
+}
+
+function isRouteAllowedForRole(path: string, role: string | null): boolean {
+  if (!role) return false;
+  const allowed = ROLE_ROUTE_MAP[role];
+  if (!allowed) return false;
+  return allowed.some(prefix => path.startsWith(prefix));
 }
 
 export function RouteGuard({ children }: RouteGuardProps) {
@@ -33,23 +48,27 @@ export function RouteGuard({ children }: RouteGuardProps) {
       return;
     }
 
-    // Role-based redirect after login
-    if (user && profile && location.pathname === '/') {
-      switch (profile.role) {
-        case 'super_admin':
-          navigate('/superadmin/dashboard', { replace: true });
-          break;
-        case 'msp_admin':
-          navigate('/msp/dashboard', { replace: true });
-          break;
-        case 'tenant_admin':
-        case 'tenant_user':
-        case 'client':
-          navigate('/tenant/dashboard', { replace: true });
-          break;
-        default:
-          navigate('/tenant/dashboard', { replace: true });
-          break;
+    if (user && profile) {
+      // Role-based redirect from root
+      if (location.pathname === '/') {
+        switch (profile.role) {
+          case 'super_admin':
+            navigate('/superadmin/dashboard', { replace: true });
+            break;
+          case 'msp_admin':
+            navigate('/msp/dashboard', { replace: true });
+            break;
+          default:
+            navigate('/tenant/dashboard', { replace: true });
+            break;
+        }
+        return;
+      }
+
+      // Block access to routes not allowed for the user's role
+      if (!isPublic && !isRouteAllowedForRole(location.pathname, profile.role)) {
+        navigate('/tenant/dashboard', { replace: true });
+        return;
       }
     }
   }, [user, profile, loading, location.pathname, navigate]);

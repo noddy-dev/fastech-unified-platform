@@ -12,8 +12,17 @@ export async function getProfile(userId: string) {
   return data as Profile | null;
 }
 
+const ALLOWED_PROFILE_UPDATE_FIELDS = ['first_name', 'last_name', 'phone', 'organization_name'] as const;
+
 export async function updateProfile(userId: string, updates: Partial<Profile>) {
-  const { data, error } = await supabase.from('profiles').update(updates).eq('id', userId).select().maybeSingle();
+  // Only allow safe fields to be updated — role, tenant_id, msp_id, password_hash are blocked
+  const safeUpdates: Record<string, unknown> = {};
+  for (const key of ALLOWED_PROFILE_UPDATE_FIELDS) {
+    if (key in updates) {
+      safeUpdates[key] = (updates as Record<string, unknown>)[key];
+    }
+  }
+  const { data, error } = await supabase.from('profiles').update(safeUpdates as any).eq('id', userId).select().maybeSingle();
   if (error) throw error;
   return data as Profile;
 }
