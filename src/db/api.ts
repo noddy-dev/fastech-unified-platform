@@ -22,7 +22,7 @@ export async function updateProfile(userId: string, updates: Partial<Profile>) {
       safeUpdates[key] = (updates as Record<string, unknown>)[key];
     }
   }
-  const { data, error } = await supabase.from('profiles').update(safeUpdates).eq('id', userId).select().maybeSingle();
+  const { data, error } = await supabase.from('profiles').update(safeUpdates as any).eq('id', userId).select().maybeSingle();
   if (error) throw error;
   return data as Profile;
 }
